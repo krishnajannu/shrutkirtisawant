@@ -59,7 +59,7 @@ const About: React.FC = () => {
                 transition={{ delay: 0.2, duration: 0.8 }}
                 className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-8 pt-6 border-t border-slate-200"
             >
-                {personalInfo.map((item, index) => (
+                {personalInfo.map((item) => (
                     <div key={item.label} className="flex items-start gap-4 group">
                         <div className="p-2.5 rounded-full bg-white border border-slate-200 text-magenta-700 shadow-sm group-hover:border-sunglow-400 group-hover:text-sunglow-500 transition-colors">
                             <item.icon size={18} strokeWidth={1.5} />

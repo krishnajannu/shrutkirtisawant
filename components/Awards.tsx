@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import SectionTitle from './SectionTitle';
 import { AWARDS_DATA, SKILLS } from '../constants';
-import { Award, Star, Medal, Sparkles, Trophy, Theater, Tv, Clapperboard, Laugh, Brain, UserRound, Heart, Languages as LangIcon, Mic2 } from 'lucide-react';
+import { Award, Star, Medal, Sparkles, Trophy, Theater, Tv, Clapperboard, Laugh, Brain, User, Heart, Languages as LangIcon, Mic2 } from 'lucide-react';
 
 const CelebrationParticles = () => {
   const particles = Array.from({ length: 15 });
@@ -40,7 +40,7 @@ const CelebrationParticles = () => {
 };
 
 const CelebrationBlast = () => {
-  const particles = Array.from({ length: 30 }).map((_, i) => ({
+  const particles = Array.from({ length: 30 }).map(() => ({
     angle: Math.random() * 360,
     distance: Math.random() * 120 + 50,
     size: Math.random() * 4 + 2,
@@ -88,7 +88,7 @@ const getSkillIcon = (skill: string) => {
   if (lower.includes('comedy')) return Laugh;
   if (lower.includes('drama')) return Heart; // Represents emotion
   if (lower.includes('method')) return Brain;
-  if (lower.includes('character')) return UserRound;
+  if (lower.includes('character')) return User;
   return Star;
 };
 
