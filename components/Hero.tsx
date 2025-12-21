@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { motion, useScroll, useTransform, useSpring, useMotionValue, useMotionTemplate } from 'framer-motion';
+import { motion, useTransform, useSpring, useMotionValue, useMotionTemplate } from 'framer-motion';
 import { HERO_IMAGE } from '../constants';
 import { ChevronDown } from 'lucide-react';
 
