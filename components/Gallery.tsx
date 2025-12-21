@@ -1,21 +1,17 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SectionTitle from './SectionTitle';
 import { GALLERY_IMAGES } from '../constants';
 import { GalleryItem } from '../types';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 
-const GalleryCard: React.FC<{ image: GalleryItem; index: number; onClick: () => void }> = ({ image, index, onClick }) => {
+const GalleryCard: React.FC<{ image: GalleryItem; onClick: () => void }> = ({ image, onClick }) => {
   const [isLoaded, setIsLoaded] = useState(false);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.9 }}
-      whileInView={{ opacity: 1, scale: 1 }}
-      viewport={{ once: true, margin: "-10%" }}
-      transition={{ delay: 0.1, duration: 0.5 }}
+    <div
       onClick={onClick}
-      className="flex-none w-[280px] md:w-[360px] aspect-[3/4] rounded-2xl overflow-hidden shadow-xl border border-white/5 snap-center relative group/item bg-magenta-900 cursor-pointer"
+      className="flex-none w-[280px] md:w-[360px] aspect-[3/4] rounded-2xl overflow-hidden shadow-xl border border-white/5 relative group/item bg-magenta-900 cursor-pointer transform transition-transform duration-300 hover:scale-[1.02]"
     >
       {/* Loading Placeholder */}
       <div 
@@ -26,14 +22,14 @@ const GalleryCard: React.FC<{ image: GalleryItem; index: number; onClick: () => 
 
       <img 
         src={image.src} 
-        alt={image.alt || image.title || `Portfolio image ${index + 1}`} 
-        className={`w-full h-full object-cover transition-all duration-1000 ease-out group-hover/item:scale-105 relative z-10 ${isLoaded ? 'opacity-100 blur-0 scale-100' : 'opacity-0 blur-xl scale-110'}`}
+        alt={image.alt || image.title} 
+        className={`w-full h-full object-cover transition-all duration-1000 ease-out relative z-10 ${isLoaded ? 'opacity-100 blur-0' : 'opacity-0 blur-xl'}`}
         loading="lazy"
         decoding="async"
         onLoad={() => setIsLoaded(true)}
       />
       
-      <div className="absolute inset-0 z-20 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover/item:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+      <div className="absolute inset-0 z-20 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover/item:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
         <span className="inline-block self-start px-3 py-1 bg-sunglow-500 text-magenta-950 text-[10px] font-bold uppercase tracking-wider rounded mb-2 transform translate-y-4 group-hover/item:translate-y-0 transition-transform duration-300">
           {image.category}
         </span>
@@ -41,28 +37,15 @@ const GalleryCard: React.FC<{ image: GalleryItem; index: number; onClick: () => 
           {image.title}
         </h3>
       </div>
-    </motion.div>
+    </div>
   );
 };
 
 const Gallery: React.FC = () => {
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
-  const scroll = (direction: 'left' | 'right') => {
-    if (scrollContainerRef.current) {
-      const scrollAmount = window.innerWidth < 768 ? 300 : 450;
-      const currentScroll = scrollContainerRef.current.scrollLeft;
-      const targetScroll = direction === 'left' 
-        ? currentScroll - scrollAmount 
-        : currentScroll + scrollAmount;
-      
-      scrollContainerRef.current.scrollTo({
-        left: targetScroll,
-        behavior: 'smooth'
-      });
-    }
-  };
+  // Create a doubled array for infinite loop effect
+  const loopImages = [...GALLERY_IMAGES, ...GALLERY_IMAGES];
 
   const handleNext = (e?: React.MouseEvent) => {
     e?.stopPropagation();
@@ -109,51 +92,44 @@ const Gallery: React.FC = () => {
   }, [selectedIndex]);
 
   return (
-    <section id="gallery" className="py-24 md:py-32 bg-magenta-950" aria-label="Photo Gallery">
-      <div className="max-w-7xl mx-auto px-6">
+    <section id="gallery" className="py-24 md:py-32 bg-magenta-950 relative" aria-label="Photo Gallery">
+        {/* Inject Styles for Marquee Animation */}
+        <style>
+            {`
+            @keyframes marquee {
+                0% { transform: translateX(0%); }
+                100% { transform: translateX(-50%); }
+            }
+            .animate-marquee {
+                animation: marquee 80s linear infinite;
+            }
+            /* Pause on hover */
+            .gallery-track:hover .animate-marquee {
+                animation-play-state: paused;
+            }
+            `}
+        </style>
+
+      <div className="max-w-7xl mx-auto px-6 mb-12">
         <SectionTitle title="Photo Gallery" subtitle="A glimpse into professional moments" />
+      </div>
 
-        <div className="relative group">
-          {/* Controls - Updated visual style */}
-          <button 
-            onClick={() => scroll('left')}
-            className="absolute -left-2 md:left-4 top-1/2 -translate-y-1/2 z-20 bg-white/10 hover:bg-sunglow-500 backdrop-blur-md p-4 rounded-full text-white hover:text-magenta-950 shadow-lg transition-all duration-300 hidden md:flex opacity-0 group-hover:opacity-100 focus:opacity-100 items-center justify-center border border-white/10"
-            aria-label="Scroll gallery left"
-          >
-            <ChevronLeft size={24} />
-          </button>
-          
-          <button 
-            onClick={() => scroll('right')}
-            className="absolute -right-2 md:right-4 top-1/2 -translate-y-1/2 z-20 bg-white/10 hover:bg-sunglow-500 backdrop-blur-md p-4 rounded-full text-white hover:text-magenta-950 shadow-lg transition-all duration-300 hidden md:flex opacity-0 group-hover:opacity-100 focus:opacity-100 items-center justify-center border border-white/10"
-            aria-label="Scroll gallery right"
-          >
-            <ChevronRight size={24} />
-          </button>
+      <div className="relative w-full overflow-hidden gallery-track group">
+          {/* Gradient Edges for Smooth Fade - Opacity reduced by 50% */}
+          <div className="absolute left-0 top-0 bottom-0 w-12 md:w-24 bg-gradient-to-r from-magenta-950/50 to-transparent z-20 pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-12 md:w-24 bg-gradient-to-l from-magenta-950/50 to-transparent z-20 pointer-events-none" />
 
-          {/* Gradient Edges */}
-          <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-magenta-950 to-transparent z-10 pointer-events-none md:w-20" />
-          <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-magenta-950 to-transparent z-10 pointer-events-none md:w-20" />
-
-          {/* Scroll Container */}
-          <div 
-            ref={scrollContainerRef}
-            className="flex gap-4 md:gap-6 overflow-x-auto pb-12 pt-4 px-4 md:px-12 snap-x snap-mandatory scrollbar-hide focus:outline-none scroll-smooth"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-            tabIndex={0}
-            role="region"
-            aria-label="Gallery images"
-          >
-            {GALLERY_IMAGES.map((image, index) => (
-              <GalleryCard 
-                key={index} 
-                image={image} 
-                index={index} 
-                onClick={() => setSelectedIndex(index)}
-              />
+          {/* Marquee Track */}
+          <div className="flex w-max animate-marquee py-8">
+            {loopImages.map((image, index) => (
+              <div key={index} className="mx-3 md:mx-4">
+                <GalleryCard 
+                    image={image} 
+                    onClick={() => setSelectedIndex(index % GALLERY_IMAGES.length)}
+                />
+              </div>
             ))}
           </div>
-        </div>
       </div>
 
       {/* Lightbox Modal */}
@@ -169,27 +145,27 @@ const Gallery: React.FC = () => {
           >
             {/* Close Button */}
             <button 
-              className="absolute top-4 right-4 md:top-8 md:right-8 text-white/70 hover:text-white transition-colors z-50 p-2 hover:bg-white/10 rounded-full"
+              className="absolute top-4 right-4 md:top-8 md:right-8 z-50 p-3 rounded-full bg-black/20 text-white/70 hover:bg-white hover:text-magenta-950 backdrop-blur-sm transition-all duration-300 border border-white/10"
               onClick={() => setSelectedIndex(null)}
               aria-label="Close gallery"
             >
-              <X size={32} />
+              <X size={24} />
             </button>
 
             {/* Nav Buttons */}
             <button
-              className="absolute left-2 md:left-8 top-1/2 -translate-y-1/2 text-white/50 hover:text-white p-2 md:p-4 hover:bg-white/10 rounded-full transition-all z-50"
+              className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-50 p-3 md:p-4 rounded-full bg-black/20 text-white/70 hover:bg-sunglow-500 hover:text-magenta-950 backdrop-blur-sm transition-all duration-300 border border-white/10 shadow-lg group focus:outline-none focus:ring-2 focus:ring-sunglow-400 hidden md:block"
               onClick={handlePrev}
               aria-label="Previous image"
             >
-              <ChevronLeft size={36} className="md:w-12 md:h-12" />
+              <ChevronLeft size={32} className="w-8 h-8 md:w-10 md:h-10 group-hover:scale-110 transition-transform" />
             </button>
             <button
-              className="absolute right-2 md:right-8 top-1/2 -translate-y-1/2 text-white/50 hover:text-white p-2 md:p-4 hover:bg-white/10 rounded-full transition-all z-50"
+              className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-50 p-3 md:p-4 rounded-full bg-black/20 text-white/70 hover:bg-sunglow-500 hover:text-magenta-950 backdrop-blur-sm transition-all duration-300 border border-white/10 shadow-lg group focus:outline-none focus:ring-2 focus:ring-sunglow-400 hidden md:block"
               onClick={handleNext}
               aria-label="Next image"
             >
-              <ChevronRight size={36} className="md:w-12 md:h-12" />
+              <ChevronRight size={32} className="w-8 h-8 md:w-10 md:h-10 group-hover:scale-110 transition-transform" />
             </button>
 
             {/* Image Container */}
@@ -204,17 +180,28 @@ const Gallery: React.FC = () => {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.2 }}
-                  className="relative flex flex-col items-center justify-center max-h-full"
+                  className="relative flex flex-col items-center justify-center max-h-full w-full"
+                  drag="x"
+                  dragConstraints={{ left: 0, right: 0 }}
+                  dragElastic={0.2}
+                  onDragEnd={(e, { offset, velocity }) => {
+                    const swipe = Math.abs(offset.x) * velocity.x;
+                    if (swipe < -10000) {
+                      handleNext();
+                    } else if (swipe > 10000) {
+                      handlePrev();
+                    }
+                  }}
                 >
                   <img
                     src={GALLERY_IMAGES[selectedIndex].src}
                     alt={GALLERY_IMAGES[selectedIndex].alt || GALLERY_IMAGES[selectedIndex].title}
-                    className="max-h-[75vh] md:max-h-[85vh] w-auto object-contain shadow-2xl rounded-sm"
+                    className="max-h-[70vh] md:max-h-[85vh] w-auto max-w-full object-contain shadow-2xl rounded-sm"
                   />
                   
                   {/* Caption */}
                   <div className="mt-4 md:mt-6 text-center max-w-2xl px-4">
-                    <h3 className="text-2xl md:text-3xl font-display text-white mb-2 tracking-wide">
+                    <h3 className="text-xl md:text-3xl font-display text-white mb-2 tracking-wide">
                       {GALLERY_IMAGES[selectedIndex].title}
                     </h3>
                     <span className="inline-block px-3 py-1 bg-white/10 text-sunglow-400 font-corporate text-xs font-bold uppercase tracking-widest rounded-full border border-white/10">
